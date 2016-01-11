@@ -297,7 +297,24 @@ function run() {
     createMap();
 }
 
-},{"./map/map.js":5}],4:[function(require,module,exports){
+},{"./map/map.js":6}],4:[function(require,module,exports){
+'use strict';
+
+var pleaseAjax = require('please-ajax');
+
+module.exports = function (map) {
+    var COUNTY_BOUNDARIES_PATH = '/geojson';
+    //getting ProjectData
+    pleaseAjax.get(COUNTY_BOUNDARIES_PATH, {
+        promise: true
+    }).then(function success(data) {
+        console.log(data);
+    }, function error(err) {
+        console.log(err);
+    });
+};
+
+},{"please-ajax":2}],5:[function(require,module,exports){
 'use strict';
 
 var pleaseAjax = require('please-ajax'),
@@ -305,8 +322,12 @@ var pleaseAjax = require('please-ajax'),
     markerCluster = require('./markerCluster/leaflet.markercluster.js');
 
 module.exports = function (map) {
+    var PROJECT_PATH = '/csv';
+
+    //initiating a control for switching between different layers
     var optionsBox = L.control.layers();
 
+    //setting options for reading csv-file
     var csv_options = {
         fieldSeparator: ',',
         titles: ["ProjectID", "EPGeoName", "lat", "lng", "Ward", "Constituency", "County", "Project Cost Yearly Breakdown (KES)", "Total Project Cost (KES)", "Approval Date ", "Start Date (Planned)", "Start Date (Actual)", "End Date (Planned)", "End Date (Actual)", "Duration", "Duration (Months)", "Project Title", "Project Description", "Project Objectives", "NG Programme", "Vision 2030 Flagship Ministry", "Vision 2030 Flagship Project/Programme", "Implementing Agency", "Implementation Status", "MTEF Sector", "Work Plan Progress (%) "],
@@ -314,44 +335,47 @@ module.exports = function (map) {
             layer.bindPopup('<h3>Project title:</h3><p>' + feature.properties.project_title + '</p><h3>Project description:</h3><p>' + feature.properties.project_description + '</p><h3>Project objectives:</h3><p>' + feature.properties.project_objectives + '</p>');
         }
     };
-    pleaseAjax.get('/data', {
+    //getting ProjectData
+    pleaseAjax.get(PROJECT_PATH, {
         promise: true
     }).then(function success(data) {
+        //creating and adding separate markers to control-layer and map
         var geoLayer = L.geoCsv(data, csv_options);
         map.addLayer(geoLayer);
         optionsBox.addBaseLayer(geoLayer, 'Show separate markers');
         return geoLayer;
-    }, function error() {
+    }, function error(error) {
         console.log('error');
     }).then(function (geoLayer) {
-        console.log(geoLayer);
+        //creating and adding clustered markers to control-layer
         var markers = new L.markerClusterGroup();
         markers.addLayer(geoLayer);
         optionsBox.addBaseLayer(markers, 'Show clustered markers');
     }).then(function () {
+        //adding control-layer to map
         optionsBox.addTo(map);
     });
-
-    //        L.control.layers(markers, geoLayer).addTo(map);
-    //    }
-    //});
 };
 
-},{"./markerCluster/leaflet.markercluster.js":6,"leaflet-geocsv":1,"please-ajax":2}],5:[function(require,module,exports){
+},{"./markerCluster/leaflet.markercluster.js":7,"leaflet-geocsv":1,"please-ajax":2}],6:[function(require,module,exports){
 'use strict';
 
-var addProjectMarkers = require('./addProjectMarkers.js');
+var addProjectMarkers = require('./addProjectMarkers.js'),
+    addCountyBoundaries = require('./addCountyBoundaries.js');
 
 module.exports = function () {
+    //creating base-map
     var map = L.map('map').setView([1.2833, 36.8167], 8);
     L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
+    //adding layers to  map
     addProjectMarkers(map);
+    addCountyBoundaries(map);
 };
 
-},{"./addProjectMarkers.js":4}],6:[function(require,module,exports){
+},{"./addCountyBoundaries.js":4,"./addProjectMarkers.js":5}],7:[function(require,module,exports){
 "use strict";
 
 /*
