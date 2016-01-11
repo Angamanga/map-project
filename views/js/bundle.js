@@ -308,7 +308,7 @@ module.exports = function (map) {
         fieldSeparator: ',',
         titles: ["ProjectID", "EPGeoName", "lat", "lng", "Ward", "Constituency", "County", "Project Cost Yearly Breakdown (KES)", "Total Project Cost (KES)", "Approval Date ", "Start Date (Planned)", "Start Date (Actual)", "End Date (Planned)", "End Date (Actual)", "Duration", "Duration (Months)", "Project Title", "Project Description", "Project Objectives", "NG Programme", "Vision 2030 Flagship Ministry", "Vision 2030 Flagship Project/Programme", "Implementing Agency", "Implementation Status", "MTEF Sector", "Work Plan Progress (%) "],
         onEachFeature: function onEachFeature(feature, layer) {
-            layer.bindPopup('<h3>Project title:</h3><p>' + feature.properties.project_title + '</p><br><h3>Project description:</h3><p>' + feature.properties.project_description + '</p>');
+            layer.bindPopup('<h3>Project title:</h3><p>' + feature.properties.project_title + '</p><h3>Project description:</h3><p>' + feature.properties.project_description + '</p><h3>Project objectives:</h3><p>' + feature.properties.project_objectives + '</p>');
         }
     };
 
