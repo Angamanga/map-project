@@ -1,8 +1,8 @@
-var pleaseAjax = require('please-ajax');
+var pleaseAjax = require('please-ajax'),
+    addProjectMarkers = require('./addProjectMarkers.js');
 
 module.exports = function(map, optionsBox){
     const COUNTY_BOUNDARIES_PATH = '/geojson';
-    console.log(map);
     //getting ProjectData
     pleaseAjax.get(COUNTY_BOUNDARIES_PATH, {
         promise:true

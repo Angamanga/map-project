@@ -12,7 +12,7 @@ module.exports = function() {
     var optionsBox = L.control.layers();
 
     //adding layers to  map
-    addProjectMarkers(map, optionsBox);
+    addProjectMarkers.addMarkers(map, optionsBox);
     addCountyBoundaries(map, optionsBox);
 }
 
