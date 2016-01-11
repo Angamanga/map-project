@@ -1,8 +1,9 @@
+var baseMap = require('./map/baseMap.js'),
+    addProjectMarkers = require('./map/addProjectMarkers.js');
+
 window.onload = run();
 
 function run(){
-    var map = L.map('map').setView([1.2833, 36.8167], 8);
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-}
+    baseMap();
+    addProjectMarkers();
+    }
