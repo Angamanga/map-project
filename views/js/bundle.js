@@ -302,16 +302,22 @@ function run() {
 
 var pleaseAjax = require('please-ajax');
 
-module.exports = function (map) {
+module.exports = function (map, optionsBox) {
     var COUNTY_BOUNDARIES_PATH = '/geojson';
+    console.log(map);
     //getting ProjectData
     pleaseAjax.get(COUNTY_BOUNDARIES_PATH, {
         promise: true
     }).then(function success(data) {
-        var geoJsondata = JSON.parse(data);
-        geoJsondata.features.forEach(function (feature) {
-            L.geoJson(feature).addTo(map);
+        var geoJsonData = JSON.parse(data);
+        var countyLayer;
+        var countyLayerArray = [];
+        geoJsonData.features.forEach(function (feature) {
+            countyLayerArray.push(L.geoJson(feature));
         });
+        countyLayer = L.layerGroup(countyLayerArray);
+        countyLayer.addTo(map);
+        optionsBox.addOverlay(countyLayer, 'show countyBoundaries').addTo(map);
     }, function error(err) {
         console.log(err);
     });
@@ -324,11 +330,8 @@ var pleaseAjax = require('please-ajax'),
     geoCsv = require('leaflet-geocsv'),
     markerCluster = require('./markerCluster/leaflet.markercluster.js');
 
-module.exports = function (map) {
+module.exports = function (map, optionsBox) {
     var PROJECT_PATH = '/csv';
-
-    //initiating a control for switching between different layers
-    var optionsBox = L.control.layers();
 
     //setting options for reading csv-file
     var csv_options = {
@@ -346,17 +349,12 @@ module.exports = function (map) {
         var geoLayer = L.geoCsv(data, csv_options);
         map.addLayer(geoLayer);
         optionsBox.addBaseLayer(geoLayer, 'Show separate markers');
-        return geoLayer;
-    }, function error(error) {
-        console.log('error');
-    }).then(function (geoLayer) {
         //creating and adding clustered markers to control-layer
         var markers = new L.markerClusterGroup();
         markers.addLayer(geoLayer);
         optionsBox.addBaseLayer(markers, 'Show clustered markers');
-    }).then(function () {
-        //adding control-layer to map
-        optionsBox.addTo(map);
+    }, function error(error) {
+        console.log('error');
     });
 };
 
@@ -373,9 +371,12 @@ module.exports = function () {
         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
+    //initiating a control for switching between different layers
+    var optionsBox = L.control.layers();
+
     //adding layers to  map
-    addProjectMarkers(map);
-    addCountyBoundaries(map);
+    addProjectMarkers(map, optionsBox);
+    addCountyBoundaries(map, optionsBox);
 };
 
 },{"./addCountyBoundaries.js":4,"./addProjectMarkers.js":5}],7:[function(require,module,exports){

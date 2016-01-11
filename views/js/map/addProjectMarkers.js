@@ -2,11 +2,8 @@ var pleaseAjax = require('please-ajax'),
     geoCsv = require('leaflet-geocsv'),
     markerCluster = require('./markerCluster/leaflet.markercluster.js');
 
-module.exports = function(map) {
+module.exports = function(map, optionsBox) {
     const PROJECT_PATH = '/csv';
-
-    //initiating a control for switching between different layers
-var optionsBox = L.control.layers();
 
     //setting options for reading csv-file
     var csv_options = {
@@ -27,17 +24,12 @@ var optionsBox = L.control.layers();
         var geoLayer = L.geoCsv(data, csv_options);
         map.addLayer(geoLayer);
         optionsBox.addBaseLayer(geoLayer, 'Show separate markers');
-        return geoLayer;
-    }, function error(error){
-        console.log('error');
-    }).then(function(geoLayer){
         //creating and adding clustered markers to control-layer
         var markers = new L.markerClusterGroup();
         markers.addLayer(geoLayer);
         optionsBox.addBaseLayer(markers, 'Show clustered markers');
-    }).then(function(){
-        //adding control-layer to map
-        optionsBox.addTo(map);
+    }, function error(error){
+        console.log('error');
     });
     }
 

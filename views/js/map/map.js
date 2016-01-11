@@ -8,8 +8,11 @@ module.exports = function() {
         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
+    //initiating a control for switching between different layers
+    var optionsBox = L.control.layers();
+
     //adding layers to  map
-    addProjectMarkers(map);
-    addCountyBoundaries(map);
+    addProjectMarkers(map, optionsBox);
+    addCountyBoundaries(map, optionsBox);
 }
 
