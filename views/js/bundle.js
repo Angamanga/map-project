@@ -1,4 +1,127 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+/*
+* Copyright 2013 - GPL
+* Iván Eixarch <ivan@sinanimodelucro.org>
+* https://github.com/joker-x/Leaflet.geoCSV
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+* MA 02110-1301, USA.
+*/
+
+L.GeoCSV = L.GeoJSON.extend({
+
+  //opciones por defecto
+  options: {
+    titles: ['lat', 'lng', 'popup'],
+    fieldSeparator: ';',
+    lineSeparator: '\n',
+    deleteDobleQuotes: true,
+    firstLineTitles: false
+  },
+
+  _propertiesNames: [],
+
+  initialize: function (csv, options) {
+    L.Util.setOptions (this, options);
+    L.GeoJSON.prototype.initialize.call (this, csv, options);
+  },
+
+  addData: function (data) {
+    if (typeof data === 'string') {
+      //leemos titulos
+      var titulos = this.options.titles;
+      if (this.options.firstLineTitles) {
+        data = data.split(this.options.lineSeparator);
+        if (data.length < 2) return;
+        titulos = data[0];
+        data.splice(0,1);
+        data = data.join(this.options.lineSeparator);
+        titulos = titulos.trim().split(this.options.fieldSeparator);
+        for (var i=0; i<titulos.length; i++) {
+          titulos[i] = this._deleteDobleQuotes(titulos[i]);
+        }
+        this.options.titles = titulos;
+      }
+      //generamos _propertiesNames
+      for (var i=0; i<titulos.length; i++) {
+         var prop = titulos[i].toLowerCase().replace(/[^\w ]+/g,'').replace(/ +/g,'_');
+         if (prop == '' || prop == '_' || this._propertiesNames.indexOf(prop) >= 0) prop = 'prop-'+i;
+         this._propertiesNames[i] = prop;
+      }
+      //convertimos los datos a geoJSON
+      data = this._csv2json(data);
+    }
+    L.GeoJSON.prototype.addData.call (this, data);
+  },
+
+  getPropertyName: function (title) {
+    var pos = this.options.titles.indexOf(title)
+      , prop = '';
+    if (pos >= 0) prop = this._propertiesNames[pos];
+    return prop;
+  },
+
+  getPropertyTitle: function (prop) {
+    var pos = this._propertiesNames.indexOf(prop)
+      , title = '';
+    if (pos >= 0) title = this.options.titles[pos];
+    return title;
+  },
+
+  _deleteDobleQuotes: function (cadena) {
+    if (this.options.deleteDobleQuotes) cadena = cadena.trim().replace(/^"/,"").replace(/"$/,"");
+    return cadena;
+  },
+
+  _csv2json: function (csv) {
+    var json = {};
+    json["type"]="FeatureCollection";
+    json["features"]=[];
+    var titulos = this.options.titles;
+
+    csv = csv.split(this.options.lineSeparator);
+    for (var num_linea = 0; num_linea < csv.length; num_linea++) {
+      var campos = csv[num_linea].trim().split(this.options.fieldSeparator)
+        , lng = parseFloat(campos[titulos.indexOf('lng')])
+        , lat = parseFloat(campos[titulos.indexOf('lat')]);
+      if (campos.length==titulos.length && lng<180 && lng>-180 && lat<90 && lat>-90) {
+        var feature = {};
+        feature["type"]="Feature";
+        feature["geometry"]={};
+        feature["properties"]={};
+        feature["geometry"]["type"]="Point";
+        feature["geometry"]["coordinates"]=[lng,lat];
+        //propiedades
+        for (var i=0; i<titulos.length; i++) {
+          if (titulos[i] != 'lat' && titulos[i] != 'lng') {
+            feature["properties"][this._propertiesNames[i]] = this._deleteDobleQuotes(campos[i]);
+          }
+        }
+        json["features"].push(feature);
+      } 
+    }
+    return json;
+  }
+
+});
+
+L.geoCsv = function (csv_string, options) {
+  return new L.GeoCSV (csv_string, options);
+};
+
+},{}],2:[function(require,module,exports){
 /**
  * please-ajax - A small and modern AJAX library.
  * @version v2.0.2
@@ -163,41 +286,52 @@
 
 }).call(this);
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 'use strict';
 
-var baseMap = require('./map/baseMap.js'),
-    addProjectMarkers = require('./map/addProjectMarkers.js');
+var createMap = require('./map/map.js');
 
 window.onload = run();
 
 function run() {
-    baseMap();
-    addProjectMarkers();
+    createMap();
 }
 
-},{"./map/addProjectMarkers.js":3,"./map/baseMap.js":4}],3:[function(require,module,exports){
+},{"./map/map.js":5}],4:[function(require,module,exports){
 'use strict';
 
-var pleaseAjax = require('please-ajax');
+var pleaseAjax = require('please-ajax'),
+    geoCsv = require('leaflet-geocsv');
 
-module.exports = function () {
+module.exports = function (map) {
+    var csv_options = {
+        fieldSeparator: ',',
+        titles: ["ProjectID", "EPGeoName", "lat", "lng", "Ward", "Constituency", "County", "Project Cost Yearly Breakdown (KES)", "Total Project Cost (KES)", "Approval Date ", "Start Date (Planned)", "Start Date (Actual)", "End Date (Planned)", "End Date (Actual)", "Duration", "Duration (Months)", "Project Title", "Project Description", "Project Objectives", "NG Programme", "Vision 2030 Flagship Ministry", "Vision 2030 Flagship Project/Programme", "Implementing Agency", "Implementation Status", "MTEF Sector", "Work Plan Progress (%) "],
+        onEachFeature: function onEachFeature(feature, layer) {
+            layer.bindPopup('<h3>Project title:</h3><p>' + feature.properties.project_title + '</p><br><h3>Project description:</h3><p>' + feature.properties.project_description + '</p>');
+        }
+    };
 
     pleaseAjax.get('/data', {
         success: function success(data) {
-            console.log(data);
+            var geoLayer = L.geoCsv(data.data, csv_options);
+            map.addLayer(geoLayer);
         }
     });
 };
 
-},{"please-ajax":1}],4:[function(require,module,exports){
+},{"leaflet-geocsv":1,"please-ajax":2}],5:[function(require,module,exports){
 'use strict';
+
+var addProjectMarkers = require('./addProjectMarkers.js');
 
 module.exports = function () {
     var map = L.map('map').setView([1.2833, 36.8167], 8);
     L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
+
+    addProjectMarkers(map);
 };
 
-},{}]},{},[2]);
+},{"./addProjectMarkers.js":4}]},{},[3]);
