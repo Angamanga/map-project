@@ -1,5 +1,6 @@
 var pleaseAjax = require('please-ajax'),
-    geoCsv = require('leaflet-geocsv');
+    geoCsv = require('leaflet-geocsv'),
+    markerCluster = require('leaflet-markercluster');
 
 module.exports = function(map) {
     var csv_options = {
@@ -12,11 +13,12 @@ module.exports = function(map) {
             );
         }
     }
-
     pleaseAjax.get('/data', {
         success(data){
             var geoLayer = L.geoCsv(data.data, csv_options);
-            map.addLayer(geoLayer);
+            var markers = new L.markerClusterGroup();
+            markers.addLayer(geoLayer);
+            map.addLayer(markers);
         }
         }
     )
