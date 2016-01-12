@@ -9,7 +9,7 @@ module.exports = {
         var self = this;
         //setting options for reading csv-file
         var csv_options = {
-            fieldSeparator: ',',
+            fieldSeparator: '|',
             titles: ["ProjectID", "EPGeoName", "lat", "lng", "Ward", "Constituency", "County", "Project Cost Yearly Breakdown (KES)", "Total Project Cost (KES)", "Approval Date ", "Start Date (Planned)", "Start Date (Actual)", "End Date (Planned)", "End Date (Actual)", "Duration", "Duration (Months)", "Project Title", "Project Description", "Project Objectives", "NG Programme", "Vision 2030 Flagship Ministry", "Vision 2030 Flagship Project/Programme", "Implementing Agency", "Implementation Status", "MTEF Sector", "Work Plan Progress (%) "],
             onEachFeature(feature, layer){
                 //counting number of projects in each county

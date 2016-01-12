@@ -11,7 +11,13 @@ module.exports = function(map, optionsBox){
         var countyLayer;
         var countyLayerArray = [];
         geoJsonData.features.forEach(function(feature){
-        countyLayerArray.push(L.geoJson(feature));
+            addProjectMarkers.projectNb.forEach(function(element){
+                if(element.hasOwnProperty(feature.properties.COUNTY_NAM)){
+                   feature.properties.projectNb = element[feature.properties.COUNTY_NAM];
+                    console.log(feature.properties);
+                }
+            });
+            countyLayerArray.push(L.geoJson(feature));
         });
         countyLayer = L.layerGroup(countyLayerArray);
         countyLayer.addTo(map);
