@@ -22,14 +22,24 @@ module.exports = function(map, optionsBox){
         });
         countyLayer = L.layerGroup(countyLayerArray);
         var legend = generateLegend();
-        countyLayer.onAdd = function(){
-            legend.addTo(map);
-        }
-        countyLayer.onRemove = function () {
-            map.removeControl(legend);
-        }
-        countyLayer.addTo(map);
-        optionsBox.addOverlay(countyLayer, 'show countyBoundaries').addTo(map);
+
+        //adding dynamic legend based on layers visible on map
+        map.on({
+            overlayadd: function(e) {
+                if (e.name === 'show countyBoundaries') {
+                    legend.addTo(map);
+
+                }
+            },
+            overlayremove: function(e) {
+                if (e.name === 'show countyBoundaries') {
+                    map.removeControl(legend);
+                }
+            }
+        });
+            optionsBox.addOverlay(countyLayer, 'show countyBoundaries').addTo(map);
+            countyLayer.addTo(map);
+
 
     }, function error(err){
         console.log(err);
@@ -54,7 +64,6 @@ module.exports = function(map, optionsBox){
         console.log(legend);
 
         return legend;
-
     };
 
 
