@@ -14,5 +14,6 @@ module.exports = function() {
     //adding layers to  map
     addProjectMarkers.addMarkers(map, optionsBox);
     addCountyBoundaries(map, optionsBox);
+
 }
 
