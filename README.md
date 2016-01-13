@@ -1,9 +1,9 @@
 #Map over Kenya showing statistics over Government-funded projects#
 
-##I have created a map showing##
+###I have created a map showing###
 * projects
     * each project as a marker
-    * projects clustered depening on closeness
+    * projects clustered if situated close to each other
     
 * county-boundaries filtered on number of projects in each county
     
@@ -36,7 +36,7 @@ delimiter and in the text-fields, but I sorted that out through adding | as a de
 
 ##Installation instruction##
 ###Requirements:###
-1. Install <a href="">Node.js</a>
+1. Install <a href="https://nodejs.org">Node.js</a>
 2. Clone the application from git repository
 3. Run ```npm install``` , ```npm run build``` and  ```node app``` in your terminal window
 5. Go to ```localhost:8080``` in browser.
@@ -45,10 +45,10 @@ delimiter and in the text-fields, but I sorted that out through adding | as a de
 A demo can be found here:
 
 ##Libraries and code examples used:##
-http://leafletjs.com/reference.html#control-layers
-https://github.com/Leaflet/Leaflet.markercluster
-https://github.com/joker-x/Leaflet.geoCSV
-http://stackoverflow.com/questions/25372033/adding-layers-in-layer-group-dynamically-to-layer-control-in-leaflet
-https://github.com/fffunction/please
-http://leafletjs.com/examples/choropleth.html
-https://www.youtube.com/watch?v=l2gR2yWCl8I
+1. http://leafletjs.com/reference.html#control-layers
+2. https://github.com/Leaflet/Leaflet.markercluster
+3. https://github.com/joker-x/Leaflet.geoCSV
+4. http://stackoverflow.com/questions/25372033/adding-layers-in-layer-group-dynamically-to-layer-control-in-leaflet
+5. https://github.com/fffunction/please
+6. http://leafletjs.com/examples/choropleth.html
+7. https://www.youtube.com/watch?v=l2gR2yWCl8I

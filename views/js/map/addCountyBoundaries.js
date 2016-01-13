@@ -11,7 +11,7 @@ module.exports = function (map, optionsBox) {
     pleaseAjax.get(COUNTY_BOUNDARIES_PATH, {
         promise: true
     }).then(function success(data) {
-        const OPTION_BOX_COUNTY_BOUNDARIES = 'Display county-boundaries';
+        const OPTIONS_BOX_COUNTY_BOUNDARIES = 'Display county-boundaries';
         var countyLayer,
             countyLayerArray = [],
             geoJsonData,
@@ -37,25 +37,25 @@ module.exports = function (map, optionsBox) {
         //adds dynamic legend based on layers visible on map
         map.on({
             overlayadd: function (e) {
-                if (e.name === OPTION_BOX_COUNTY_BOUNDARIES ) {
+                if (e.name === OPTIONS_BOX_COUNTY_BOUNDARIES ) {
                     legend.addTo(map);
                 }
             },
             overlayremove: function (e) {
-                if (e.name === OPTION_BOX_COUNTY_BOUNDARIES) {
+                if (e.name === OPTIONS_BOX_COUNTY_BOUNDARIES) {
                     map.removeControl(legend);
                 }
             }
         });
         //adds layer to map and optionbox
-        optionsBox.addOverlay(countyLayer, OPTION_BOX_COUNTY_BOUNDARIES).addTo(map);
+        optionsBox.addOverlay(countyLayer, OPTIONS_BOX_COUNTY_BOUNDARIES).addTo(map);
         countyLayer.addTo(map);
 
     }, function error(err) {
         console.log(err);
     });
 
-    //help-function to generate legend
+    //help-function to generate legend (very much alike this example: http://leafletjs.com/examples/choropleth.html)
     function generateLegend() {
         var legend = L.control({position: 'bottomright'});
         legend.onAdd = function (map) {
@@ -63,7 +63,6 @@ module.exports = function (map, optionsBox) {
                 grades = [0, 10, 20, 30, 40, 50, 100, 200, 500],
                 labels = [];
             div.innerHTML = '<h3>Number of projects</h3>';
-            // loop through our density intervals and generate a label with a colored square for each interval
             for (var i = 0; i < grades.length; i++) {
                 div.innerHTML +=
                     '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
@@ -71,8 +70,6 @@ module.exports = function (map, optionsBox) {
             }
             return div;
         }
-        console.log(legend);
-
         return legend;
     };
 
@@ -82,7 +79,7 @@ module.exports = function (map, optionsBox) {
             fillColor: getColor(feature.properties.projectNb),
             weight: 2,
             opacity: 1,
-            color: 'white',
+            color: '#FFFFFF',
             dashArray: '3',
             fillOpacity: 0.7
         };

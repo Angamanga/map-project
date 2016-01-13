@@ -10,6 +10,8 @@ var pleaseAjax = require('please-ajax'),
 module.exports = {
     addMarkers(map, optionsBox) {
         const PROJECT_PATH = '/csv';
+        const OPTIONS_BOX_SEPARATE_MARKERS = 'Show projects as markers';
+        const OPTIONS_BOX_CLUSTERED_MARKERS = 'Show projects as clustered markers';
         var self = this;
 
         //setting options for reading csv-file
@@ -46,15 +48,15 @@ module.exports = {
             //creating and adding separate markers to control-layer and map
             var geoLayer = L.geoCsv(data, csv_options);
             map.addLayer(geoLayer);
-            optionsBox.addBaseLayer(geoLayer, 'Show separate markers');
+            optionsBox.addBaseLayer(geoLayer, OPTIONS_BOX_SEPARATE_MARKERS );
 
             //creating and adding clustered markers to control-layer
             var markers = new L.markerClusterGroup();
             markers.addLayer(geoLayer);
-            optionsBox.addBaseLayer(markers, 'Show clustered markers');
+            optionsBox.addBaseLayer(markers, OPTIONS_BOX_CLUSTERED_MARKERS);
 
-        }, function error(error) {
-            console.log('error');
+        }, function error(err) {
+            console.log(err);
         });
 
         //help-function when calculating number of projects and cost in each county
@@ -70,7 +72,7 @@ module.exports = {
             return ret;
         };
     },
-    projectNb: [],
+    projectNb: []
 }
 
 
