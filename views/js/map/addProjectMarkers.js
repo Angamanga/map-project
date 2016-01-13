@@ -8,7 +8,8 @@ var pleaseAjax = require('please-ajax'),
  * */
 
 module.exports = {
-    addMarkers(map, optionsBox) {
+    projectNb: [],
+    addMarkers : function(map, optionsBox) {
         const PROJECT_PATH = '/csv';
         const OPTIONS_BOX_SEPARATE_MARKERS = 'Show projects as markers';
         const OPTIONS_BOX_CLUSTERED_MARKERS = 'Show projects as clustered markers';
@@ -19,10 +20,10 @@ module.exports = {
             fieldSeparator: '|',
             lineSeparator: '/n',
             firstLineTitles:true,
-            pointToLayer(feature, latlng) {
+            pointToLayer: function(feature, latlng) {
                 return new L.Marker(latlng);
                 },
-            onEachFeature(feature, layer){
+            onEachFeature:function(feature, layer){
                 //counting number of projects in each county and adding them to array
                 var index = countyArray(feature.properties.county, self.projectNb);
                 if (index !== false) {
@@ -71,8 +72,7 @@ module.exports = {
             }
             return ret;
         };
-    },
-    projectNb: []
+    }
 }
 
 
