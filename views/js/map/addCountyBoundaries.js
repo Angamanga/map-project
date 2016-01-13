@@ -84,11 +84,12 @@ module.exports = function (map, optionsBox) {
             fillOpacity: 0.7
         };
     }
+
     //help-function that generates color-code depending on number of projects
     function getColor(d) {
-        return  d > 500 ? '#67000d' :
-                d > 200 ? '#a50f15' :
-                    d > 100 ? '#cb181d' :
+        return d > 500 ? '#67000d' :
+            d > 200 ? '#a50f15' :
+                d > 100 ? '#cb181d' :
                     d > 50 ? '#ef3b2c' :
                         d > 40 ? '#fb6a4a' :
                             d > 30 ? '#fc9272' :

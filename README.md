@@ -10,7 +10,7 @@
 ##Language and libraries used##
 I have written a Node.js-application where the node-server is used to serve the source-data to the client through
 HTTP-requests. In the front-end I have worked with plain vanilla Java Script with the addition of a number of libraries
-to optimise the code (Browserify and Babel) and make Ajax-requests easier (PleaseAjax). I have used Leaflet.js together with two plugin-libraries
+to optimise the code (Browserify and Babel) and make Ajax-requests easier (PleaseAjax). I have used Leaflet.js together with two libraries
  to make it possible to handle csv-data (geoCSV) and make clustered layers (MarkerCluster).
 
 The application starts in the file 'main.js' where the map is initiated. The map is created through three js-files, map.js, addProjectMarkers.js
@@ -21,8 +21,8 @@ However, I needed data from addProjectMarkers in addCountyBoundaries so there is
 ##Thoughts and discussion##
 I think this was a quite nice and straight forward task. I had some problems working with the csv-file as there were commas both as a 
 delimiter and in the text-fields, but I sorted that out through adding | as a delimiter and /n as escape character. I also cleaned up the 
- file by only keeping records and fields containg data I actually use. However, I kept ProjectID to make it possible to join other data if 
- neccessary. Before doing anything more with this data, I think it is important to clean up the data more properly together with someone
+ file by only keeping records and fields containing data I actually use. However, I kept ProjectID to make it possible to join other data if 
+ necessary. Before doing anything more with this data, I think it is important to clean up the data more properly together with someone
  who knows the data. Some projects are for example repeated several times but at different locations. 
  
 However, there are lots of interesting information in the file but due to time-constraints, I opted to focus on the above implementations. Other interesting 
@@ -30,7 +30,7 @@ However, there are lots of interesting information in the file but due to time-c
  
  * average duration of the projects within a county. This together with cost could aid in showing a more accurate picture of the projects than cost only.
           
- * It could be interesting to visualise what kind of projects there are in each county. That could be done through visualising 
+ * It could be interesting to visualise what kind of projects there are in each county. That could probably be done through visualising 
       data based on the number of projects in either "MTEF Sector", "Implementing Agency" or "NG Programme" fields.
 
 
@@ -44,7 +44,7 @@ However, there are lots of interesting information in the file but due to time-c
 5. Go to ```localhost:8080``` in browser.
 
 ##Demo##
-A demo can be found here:
+A demo can be found here: 
 
 ##Libraries and code examples used:##
 1. http://leafletjs.com/reference.html#control-layers

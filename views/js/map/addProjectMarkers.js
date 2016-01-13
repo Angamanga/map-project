@@ -2,14 +2,13 @@ var pleaseAjax = require('please-ajax'),
     geoCsv = require('leaflet-geocsv'),
     markerCluster = require('./markerCluster/leaflet.markercluster.js');
 
-/*this module contains two things, first a function that adds a marker for each project, then an array where
- *the number of projects in each county is stored. This array is then used when adding number of projects in
+/*this module contains two things, first a function that adds a marker for each project, then an array called
+ * projectNb where the number of projects in each county is stored. This array is then used when adding number of projects in
  * each county to the layer displaying counties.
  * */
 
 module.exports = {
-    projectNb: [],
-    addMarkers : function(map, optionsBox) {
+    addMarkers(map, optionsBox){
         const PROJECT_PATH = '/csv';
         const OPTIONS_BOX_SEPARATE_MARKERS = 'Show projects as markers';
         const OPTIONS_BOX_CLUSTERED_MARKERS = 'Show projects as clustered markers';
@@ -20,18 +19,18 @@ module.exports = {
             fieldSeparator: '|',
             lineSeparator: '/n',
             firstLineTitles:true,
-            pointToLayer: function(feature, latlng) {
+            pointToLayer(feature, latlng){
                 return new L.Marker(latlng);
                 },
-            onEachFeature:function(feature, layer){
-                //counting number of projects in each county and adding them to array
+            onEachFeature(feature, layer){
+                //counting number of projects in each county and adding them to projectNb-array
                 var index = countyArray(feature.properties.county, self.projectNb);
                 if (index !== false) {
                     self.projectNb[index][feature.properties.county]++;
                 }
                 else {
                     var object = {};
-                    object[feature.properties.county] = 1
+                    object[feature.properties.county] = 1;
                     self.projectNb.push(object);
                 }
                 //adding popup to marker
@@ -42,7 +41,7 @@ module.exports = {
             }
         };
 
-        //Ajax-request to get csv-file from server
+        //Ajax-request to get csv-file from server and create map layers
         pleaseAjax.get(PROJECT_PATH, {
             promise: true
         }).then(function success(data) {
@@ -55,7 +54,6 @@ module.exports = {
             var markers = new L.markerClusterGroup();
             markers.addLayer(geoLayer);
             optionsBox.addBaseLayer(markers, OPTIONS_BOX_CLUSTERED_MARKERS);
-
         }, function error(err) {
             console.log(err);
         });
@@ -72,7 +70,6 @@ module.exports = {
             }
             return ret;
         };
-    }
+    },
+    projectNb: []
 }
-
-

@@ -3,7 +3,7 @@ var addProjectMarkers = require('./addProjectMarkers.js'),
 
 module.exports = function () {
     //creating base-map with OpenStreet-map tiles
-    var map = L.map('map').setView([1.2833, 36.8167], 8);
+    var map = L.map('map').setView([1.2833, 36.8167], 7);
     L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
