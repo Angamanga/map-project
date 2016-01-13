@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "build": "browserify views/js/main.js > views/js/bundle.js -t [ babelify --presets [ es2015] ]"
+    "build": "browserify views/js/main.js > views/js/bundle.js -t [ babelify --presets [ es2015] ] && node app"
   },
   "author": "",
   "license": "ISC",

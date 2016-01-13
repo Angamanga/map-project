@@ -303,48 +303,58 @@ function run() {
 var pleaseAjax = require('please-ajax'),
     addProjectMarkers = require('./addProjectMarkers.js');
 
+/*This module add countyboundaries filtered on number of projects in each county
+*
+* */
 module.exports = function (map, optionsBox) {
     var COUNTY_BOUNDARIES_PATH = '/geojson';
 
-    //getting ProjectData
+    //Ajax-request to get geojson-file with countyboundaries from server
     pleaseAjax.get(COUNTY_BOUNDARIES_PATH, {
         promise: true
     }).then(function success(data) {
-        var geoJsonData = JSON.parse(data);
-        var countyLayer;
-        var countyLayerArray = [];
+        var OPTION_BOX_COUNTY_BOUNDARIES = 'Display county-boundaries';
+        var countyLayer,
+            countyLayerArray = [],
+            geoJsonData = JSON.parse(data);
+
+        //add number of projects in each county
         geoJsonData.features.forEach(function (feature) {
             addProjectMarkers.projectNb.forEach(function (element) {
                 if (element.hasOwnProperty(feature.properties.COUNTY_NAM)) {
                     feature.properties.projectNb = element[feature.properties.COUNTY_NAM];
                 }
             });
-
+            //creates geoJson-layers from each feature and adds style depending on number of projects
             countyLayerArray.push(L.geoJson(feature, { style: style(feature) }));
         });
-        countyLayer = L.layerGroup(countyLayerArray);
-        var legend = generateLegend();
 
+        //creates a Layergroup from each feature
+        countyLayer = L.layerGroup(countyLayerArray);
+        legend = generateLegend();
+
+        //adds dynamic legend based on layers visible on map
         map.on({
             overlayadd: function overlayadd(e) {
-                if (e.name === 'show countyBoundaries') {
+                if (e.name === OPTION_BOX_COUNTY_BOUNDARIES) {
                     legend.addTo(map);
                 }
             },
             overlayremove: function overlayremove(e) {
-                if (e.name === 'show countyBoundaries') {
+                if (e.name === OPTION_BOX_COUNTY_BOUNDARIES) {
                     map.removeControl(legend);
                 }
             }
         });
-        optionsBox.addOverlay(countyLayer, 'show countyBoundaries').addTo(map);
+        //adds layer to map and optionbox
+        optionsBox.addOverlay(countyLayer, OPTION_BOX_COUNTY_BOUNDARIES).addTo(map);
         countyLayer.addTo(map);
     }, function error(err) {
         console.log(err);
     });
 
+    //help-function to generate legend
     function generateLegend() {
-        //adding legend
         var legend = L.control({ position: 'bottomright' });
         legend.onAdd = function (map) {
             var div = L.DomUtil.create('div', 'info legend'),
@@ -362,6 +372,7 @@ module.exports = function (map, optionsBox) {
         return legend;
     };
 
+    //help-function that generates style to each geoJson-layer
     function style(feature) {
         return {
             fillColor: getColor(feature.properties.projectNb),
@@ -372,7 +383,7 @@ module.exports = function (map, optionsBox) {
             fillOpacity: 0.7
         };
     }
-
+    //help-function that generates color-code depending on number of projects
     function getColor(d) {
         return d > 500 ? '#67000d' : d > 200 ? '#a50f15' : d > 100 ? '#cb181d' : d > 50 ? '#ef3b2c' : d > 40 ? '#fb6a4a' : d > 30 ? '#fc9272' : d > 20 ? '#fcbba1' : d > 10 ? '#fee0d2' : '#fff5f0';
     }
@@ -385,26 +396,25 @@ var pleaseAjax = require('please-ajax'),
     geoCsv = require('leaflet-geocsv'),
     markerCluster = require('./markerCluster/leaflet.markercluster.js');
 
+/*this module contains two things, first a function that add a marker for each project, then an array where
+ *the number of projects in each county is stored. This array is then used when adding number of projects in
+ * each county to the layer displaying counties.
+ * */
+
 module.exports = {
-    projectNb: [],
     addMarkers: function addMarkers(map, optionsBox) {
         var PROJECT_PATH = '/csv';
         var self = this;
         //setting options for reading csv-file
         var csv_options = {
             fieldSeparator: '|',
-            titles: ["ProjectID", "EPGeoName", "lat", "lng", "Ward", "Constituency", "County", "Project Cost Yearly Breakdown (KES)", "Total Project Cost (KES)", "Approval Date ", "Start Date (Planned)", "Start Date (Actual)", "End Date (Planned)", "End Date (Actual)", "Duration", "Duration (Months)", "Project Title", "Project Description", "Project Objectives", "NG Programme", "Vision 2030 Flagship Ministry", "Vision 2030 Flagship Project/Programme", "Implementing Agency", "Implementation Status", "MTEF Sector", "Work Plan Progress (%) "],
+            lineSeparator: '/n',
+            firstLineTitles: true,
             pointToLayer: function pointToLayer(feature, latlng) {
-                return new L.CircleMarker(latlng, {
-                    radius: 8,
-                    color: "grey",
-                    border: 'solid 1px black',
-                    weight: 0.1,
-                    opacity: 1,
-                    fillOpacity: 0.6 });
+                return new L.Marker(latlng);
             },
             onEachFeature: function onEachFeature(feature, layer) {
-                //counting number of projects in each county
+                //counting number of projects in each county and add to array
                 var index = countyArray(feature.properties.county, self.projectNb);
                 if (index !== false) {
                     self.projectNb[index][feature.properties.county]++;
@@ -413,12 +423,12 @@ module.exports = {
                     object[feature.properties.county] = 1;
                     self.projectNb.push(object);
                 }
-
                 //adding popup to marker
-                layer.bindPopup('<h3>Project title:</h3><p>' + feature.properties.project_title + '</p><h3>Project description:</h3><p>' + feature.properties.project_description + '</p><h3>Project objectives:</h3><p>' + feature.properties.project_objectives + '</p>');
+                layer.bindPopup('<h3>' + feature.properties.project_title + '</h3><p>' + '</p><h4>Project description:</h4><p>' + feature.properties.project_description + '</p><h4>Project objectives:</h3><p>' + feature.properties.project_objectives + '</p>');
             }
         };
-        //getting ProjectData
+
+        //Ajax-request to get csv-file from server
         pleaseAjax.get(PROJECT_PATH, {
             promise: true
         }).then(function success(data) {
@@ -426,6 +436,7 @@ module.exports = {
             var geoLayer = L.geoCsv(data, csv_options);
             map.addLayer(geoLayer);
             optionsBox.addBaseLayer(geoLayer, 'Show separate markers');
+
             //creating and adding clustered markers to control-layer
             var markers = new L.markerClusterGroup();
             markers.addLayer(geoLayer);
@@ -434,6 +445,7 @@ module.exports = {
             console.log('error');
         });
 
+        //help-function when calculating number of projects and cost in each county
         function countyArray(county, projectNb) {
             var ret = false;
             if (projectNb.length > 0) {
@@ -445,7 +457,9 @@ module.exports = {
             }
             return ret;
         };
-    }
+    },
+
+    projectNb: []
 };
 
 },{"./markerCluster/leaflet.markercluster.js":7,"leaflet-geocsv":1,"please-ajax":2}],6:[function(require,module,exports){
@@ -455,7 +469,7 @@ var addProjectMarkers = require('./addProjectMarkers.js'),
     addCountyBoundaries = require('./addCountyBoundaries.js');
 
 module.exports = function () {
-    //creating base-map
+    //creating base-map with OpenStreet-map tiles
     var map = L.map('map').setView([1.2833, 36.8167], 8);
     L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -464,7 +478,7 @@ module.exports = function () {
     //initiating a control for switching between different layers
     var optionsBox = L.control.layers();
 
-    //adding layers to  map
+    //adding layers to map
     addProjectMarkers.addMarkers(map, optionsBox);
     addCountyBoundaries(map, optionsBox);
 };

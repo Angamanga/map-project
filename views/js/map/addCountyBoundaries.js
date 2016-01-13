@@ -1,52 +1,62 @@
 var pleaseAjax = require('please-ajax'),
     addProjectMarkers = require('./addProjectMarkers.js');
 
-module.exports = function(map, optionsBox){
+/*This module adds countyboundaries filtered on number of projects in each county
+*
+* */
+module.exports = function (map, optionsBox) {
     const COUNTY_BOUNDARIES_PATH = '/geojson';
 
-    //getting ProjectData
+    //Ajax-request to get geojson-file with countyboundaries from server
     pleaseAjax.get(COUNTY_BOUNDARIES_PATH, {
-        promise:true
+        promise: true
     }).then(function success(data) {
-        var geoJsonData = JSON.parse(data);
-        var countyLayer;
-        var countyLayerArray = [];
-        geoJsonData.features.forEach(function(feature){
-            addProjectMarkers.projectNb.forEach(function(element){
-                if(element.hasOwnProperty(feature.properties.COUNTY_NAM)){
-                   feature.properties.projectNb = element[feature.properties.COUNTY_NAM];
+        const OPTION_BOX_COUNTY_BOUNDARIES = 'Display county-boundaries';
+        var countyLayer,
+            countyLayerArray = [],
+            geoJsonData,
+            legend;
+
+        //parses data from server
+        geoJsonData = JSON.parse(data);
+        //add number of projects in each county
+        geoJsonData.features.forEach(function (feature) {
+            addProjectMarkers.projectNb.forEach(function (element) {
+                if (element.hasOwnProperty(feature.properties.COUNTY_NAM)) {
+                    feature.properties.projectNb = element[feature.properties.COUNTY_NAM];
                 }
             });
-
+            //creates geoJson-layers from each feature and adds style depending on number of projects
             countyLayerArray.push(L.geoJson(feature, {style: style(feature)}));
         });
+
+        //creates a Layergroup from each feature
         countyLayer = L.layerGroup(countyLayerArray);
-        var legend = generateLegend();
+        legend = generateLegend();
 
-        //adding dynamic legend based on layers visible on map
+        //adds dynamic legend based on layers visible on map
         map.on({
-            overlayadd: function(e) {
-                if (e.name === 'show countyBoundaries') {
+            overlayadd: function (e) {
+                if (e.name === OPTION_BOX_COUNTY_BOUNDARIES ) {
                     legend.addTo(map);
-
                 }
             },
-            overlayremove: function(e) {
-                if (e.name === 'show countyBoundaries') {
+            overlayremove: function (e) {
+                if (e.name === OPTION_BOX_COUNTY_BOUNDARIES) {
                     map.removeControl(legend);
                 }
             }
         });
-            optionsBox.addOverlay(countyLayer, 'show countyBoundaries').addTo(map);
-            countyLayer.addTo(map);
+        //adds layer to map and optionbox
+        optionsBox.addOverlay(countyLayer, OPTION_BOX_COUNTY_BOUNDARIES).addTo(map);
+        countyLayer.addTo(map);
 
-
-    }, function error(err){
+    }, function error(err) {
         console.log(err);
     });
 
+    //help-function to generate legend
     function generateLegend() {
-        //adding legend
         var legend = L.control({position: 'bottomright'});
         legend.onAdd = function (map) {
             var div = L.DomUtil.create('div', 'info legend'),
@@ -60,13 +70,13 @@ module.exports = function(map, optionsBox){
                     grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
             }
             return div;
-            }
+        }
         console.log(legend);
 
         return legend;
     };
 
-
+    //help-function that generates style to each geoJson-layer
     function style(feature) {
         return {
             fillColor: getColor(feature.properties.projectNb),
@@ -77,16 +87,16 @@ module.exports = function(map, optionsBox){
             fillOpacity: 0.7
         };
     }
-
+    //help-function that generates color-code depending on number of projects
     function getColor(d) {
-        return d > 500 ? '#67000d' :
-                d > 200  ? '#a50f15' :
-                d > 100  ? '#cb181d' :
-                d > 50  ? '#ef3b2c' :
-                d > 40   ? '#fb6a4a' :
-                d > 30   ? '#fc9272' :
-                d > 20   ? '#fcbba1' :
-                d > 10 ? '#fee0d2':
-                '#fff5f0';
+        return  d > 500 ? '#67000d' :
+                d > 200 ? '#a50f15' :
+                    d > 100 ? '#cb181d' :
+                    d > 50 ? '#ef3b2c' :
+                        d > 40 ? '#fb6a4a' :
+                            d > 30 ? '#fc9272' :
+                                d > 20 ? '#fcbba1' :
+                                    d > 10 ? '#fee0d2' :
+                                        '#fff5f0';
     }
 }

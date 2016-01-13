@@ -6,7 +6,6 @@ I have created a map showing
   
 - county-boundaries with the choice of displaying
     number of projects per county
-   
     
 Language and libraries used
 I choose to do a Node.js-application where the node-server is used to serve the source-data to the client through
@@ -20,6 +19,12 @@ and addCountyBoundaries.js.
 Thoughts and discussion
 I think this was a quite nice and straight forward task. I had some problems working with the csv-file because there were commas both as a 
 delimiter and in the text-fields, but I sorted that out through adding | as a delimiter instead. 
+Clean up / optimize the source data for faster load times
+
+Suggest a novel way to visualize the data (and implement if you have time)
+Objectives/county
+Agencies/county
+Average duration of projects
 
 Estimated time spent
 
