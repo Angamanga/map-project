@@ -44,7 +44,7 @@ However, there are lots of interesting information in the file but due to time-c
 5. Go to ```localhost:8080``` in browser.
 
 ##Demo##
-A demo can be found here: 
+A demo can be found <a href="http://178.62.207.109:8080">here!</a> 
 
 ##Libraries and code examples used:##
 1. http://leafletjs.com/reference.html#control-layers
